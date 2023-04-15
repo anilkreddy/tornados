@@ -23,7 +23,7 @@ function buildLine(data, year) {
         var slices = data.columns.slice(24).map(function (id) {
             return {
                 id: id,
-                values: data.map(function (d) {
+                values: filteredData.map(function (d) {
                     return {
                         date: timeConv(d.date),
                         measurement: +d[id],
