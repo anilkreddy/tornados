@@ -1,5 +1,5 @@
 function init() {
-    populateYearDropdown();    
+    populateYearDropdown();
     loadData().then(buildThePlot);
     createLegend();
 }
@@ -18,14 +18,13 @@ async function optionChanged() {
 
     updateCounters(totalCount, fatalitiesCount, injuriesCount);
 
-    loadData().then(function(data) {
+    loadData().then(function (data) {
         if (currentYear === "1950-2021") {
-            buildThePlot(data);      
-          } else {
+            buildThePlot(data);
+        } else {
             buildThePlot(data, currentYear);
-          }
+        }
     });
-    
 }
 
 async function updateCounters(totalCount, fatalitiesCount, injuriesCount) {
@@ -54,7 +53,7 @@ function populateYearDropdown() {
 }
 
 // Filters the data based on the magnitude range of the tornado events.
-function filterData(data) {    
+function filterData(data) {
     return data.filter(function (rawData) {
         return rawData.mag >= 0 && rawData.mag <= 5;
     });
