@@ -23,6 +23,7 @@ async function optionChanged() {
             buildThePlot(data);
         } else {
             buildThePlot(data, currentYear);
+            buildLine(data, currentYear);
         }
     });
 }
@@ -141,9 +142,7 @@ function createLayout() {
     };
 }
 // Creates and updates the plot with the given data and year filter.
-function buildThePlot(data, year) {
-    console.log(data);
-    console.log(year);
+function buildThePlot(data, year) {    
     // Filter the data based on the specified magnitude range (0-5).
     let filteredData = filterData(data);
     // If specific year is provided, filter the data based on that year.
