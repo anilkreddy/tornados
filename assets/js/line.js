@@ -1,9 +1,9 @@
-const width = 960;
+const width = 900;
 const height = 500;
 const margin = 5;
 const padding = 5;
 const adj = 30;
-// we are appending SVG first
+
 const svg = d3
     .select("#line")
     .append("svg")
@@ -12,31 +12,82 @@ const svg = d3
     .style("padding", padding)
     .style("margin", margin)
     .classed("svg-content", true);
-const timeConv = d3.timeParse("%Y-%m-%d");
+const timeConv = d3.timeParse("%Y-%m");
+
+function getLineData(data, year) {
+    filteredData = data.filter(function (yearData) {
+        return yearData.yr == year;
+    });
+
+    var consolidatedData = d3
+        .nest()
+        .key(function (d) {
+            return d.date.split("-").slice(0, 2).join("-");
+        })
+        .sortKeys(d3.ascending)
+        .rollup(function (leaves) {
+            return {
+                f1: d3.sum(leaves, function (d) {
+                    return d.f1;
+                }),
+                f2: d3.sum(leaves, function (d) {
+                    return d.f2;
+                }),
+                f3: d3.sum(leaves, function (d) {
+                    return d.f3;
+                }),
+                f4: d3.sum(leaves, function (d) {
+                    return d.f4;
+                }),
+                fc: d3.sum(leaves, function (d) {
+                    return d.fc;
+                }),
+            };
+        })
+        .entries(filteredData);    
+
+    var lineData = [];
+
+    consolidatedData.forEach((values, keys) => {
+        console.log(values);
+        var item = {
+            date: values.key,
+            f1: values.value.f1,
+            f2: values.value.f2,
+            f3: values.value.f3,
+            f4: values.value.f4,
+            fc: values.value.fc,
+        };
+        lineData.push(item);
+    });
+
+    return lineData;
+}
 
 function buildLine(data, year) {
     if (year) {
-        filteredData = data.filter(function (yearData) {
-            return yearData.yr == year;
-        });
+        var lineData = getLineData(data, year);
 
+        console.log("lineData");
+        console.log(lineData);
         var slices = data.columns.slice(24).map(function (id) {
             return {
                 id: id,
-                values: filteredData.map(function (d) {
+                values: lineData.map(function (d) {
                     return {
                         date: timeConv(d.date),
                         measurement: +d[id],
                     };
                 }),
             };
-        });        
+        });
+        console.log(slices);
 
         //----------------------------SCALES----------------------------//
         const xScale = d3.scaleTime().range([0, width]);
         const yScale = d3.scaleLinear().rangeRound([height, 0]);
         xScale.domain(
-            d3.extent(data, function (d) {
+            d3.extent(lineData, function (d) {
                 return timeConv(d.date);
             })
         );
@@ -52,7 +103,8 @@ function buildLine(data, year) {
         //-----------------------------AXES-----------------------------//
         const yaxis = d3.axisLeft().ticks(slices[0].values.length).scale(yScale);
 
-        const xaxis = d3.axisBottom().ticks(d3.timeDay.every(1)).tickFormat(d3.timeFormat("%b %d")).scale(xScale);
+        const xaxis = d3.axisBottom().ticks(d3.timeMonth.every(1)).tickFormat(d3.timeFormat("%b %Y")).scale(xScale);
+        
 
         //----------------------------LINES-----------------------------//
         const line = d3
@@ -89,7 +141,7 @@ function buildLine(data, year) {
 
         lines
             .append("text")
-            .attr("class", "serie_label")
+            .attr("class", "f_label")
             .datum(function (d) {
                 return {
                     id: d.id,
