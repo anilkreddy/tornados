@@ -4,7 +4,6 @@ const margin = 5;
 const padding = 5;
 const adj = 30;
 
-
 const timeConv = d3.timeParse("%Y-%m");
 
 function getLineData(data, year) {
@@ -58,7 +57,9 @@ function getLineData(data, year) {
 }
 
 function buildLine(data, year) {
-    const svg = d3
+    d3.select(".svg-content").remove();
+
+const svg = d3
     .select("#line")
     .append("svg")
     .attr("preserveAspectRatio", "xMinYMin meet")
